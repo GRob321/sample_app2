@@ -7,9 +7,10 @@ describe User do
     before(:each) do
  #     @user = User.new(@attr)
 #    @user = User.create!(@attr)
+#       :email => "user@example.com",
     @attr = {
       :name => "Example User",
-      :email => "user@example.com",
+      :email => "example@railstutorial.org",
       :password => "foobar",
       :password_confirmation => "foobar"
     }
@@ -35,7 +36,6 @@ describe User do
     long_name_user.should_not be_valid
   end
   
-  # failed
   it "should reject duplicate email addresses" do
     # Put a user with given email address into the database
     User.create!(@attr)
@@ -52,9 +52,10 @@ describe User do
   
   # failed
   it "should accept valid email addresses" do
+ #   addresses = %w[user@foo.com THE_USER@foo.bar.org first.last@foo.jp]
     addresses = %w[user@foo.com THE_USER@foo.bar.org first.last@foo.jp]
     addresses.each do |address|
-      valid_email_user = User.new(@attr.merge(:email => addresses))
+      valid_email_user = User.new(@attr.merge(:email => address))
       valid_email_user.should be_valid
     end
   end
@@ -62,7 +63,7 @@ describe User do
   it "should reject invalid email addresses" do
     addresses = %w[user@foo,com user_at_foo.org example.user@foo.]
     addresses.each do |address|
-      invalid_email_user = User.new(@attr.merge(:email => addresses))
+      invalid_email_user = User.new(@attr.merge(:email => address))
       invalid_email_user.should_not be_valid
     end
   end
@@ -107,6 +108,7 @@ describe User do
     end
     
     describe "authenticate method" do
+      # fail
       it "should return nil on email/password mismatch" do
         wrong_password_user = User.authenticate(@attr[:email], "wrongpass")
         wrong_password_user.should be_nil
@@ -124,19 +126,16 @@ describe User do
     end
   end
   
-  
-#------------------------
-  describe "has_password? method" do
+      describe "has_password? method" do  
+      it "should be true if the passwords match" do
+        @user = User.create!(@attr)
+        @user.has_password?(@attr[:password]).should be_true
+      end
     
-    it "should be true if the passwords match" do
-      @user = User.create!(@attr)
-      @user.has_password?(@attr[:password]).should be_true
+      # failed
+      it "should be false if the passwords don't match" do
+        @user = User.create!(@attr)
+        @user.has_password?("invalid").should be_false  
+      end
     end
-  
-    # failed
-    it "should be false if the passwords don't match" do
-      @user = User.create!(@attr)
-      @user.has_password?("invalid").should be_false  
-    end
-  end
 end
